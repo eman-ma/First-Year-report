@@ -1,0 +1,83 @@
+
+clear
+% define the function f(z)
+omega=1;
+alpha=0; % Set alpha = 0 for the deterministic case
+f=@(z,v) (-v+1i*omega)*z+2*z*abs(z)^2-z*abs(z)^4;
+% different values of v parameters
+v0=[0.1,0.5,0.9];
+sv=length(v0);
+% the initial conditions
+z0=[1.0,2.0,0.5];
+mycol=['b' 'g' 'r']; 
+myline=['-' '--' '-.'];
+m=length(z0); % number of intial conditions
+z1=0; z2=1;
+% define the time t
+T=100;
+N=100000;
+dt=T/N;
+t=linspace(0,T,N);
+z=zeros(N,m,sv);
+
+%solve SDE using Euler-Maruyama method
+
+for k=1:m
+  for ii=1:sv 
+    z(1,k,ii)=z0(k);
+    v00=v0(ii); 
+    for i=1:N-1
+       dW = sqrt(dt)*(randn +1i*randn);
+       z(i+1,k,ii)=z(i,k,ii)+f(z(i,k,ii),v00)*dt + alpha*dW;
+    end
+  end
+end
+
+%plot the real and imaginary parts with time separately
+figure(1)
+clf;
+hold all
+ 
+subplot(2,1,1);
+ for ii=1:sv
+   for k=1:m   
+     plot(t,real(z(:,k,ii)))
+     hold on
+   end 
+ end
+ grid on
+ xlabel('t');
+ ylabel('real part of z(t)');
+ title('the real part of the solution for different v');
+ legend(cellstr(num2str(v0')))
+ 
+subplot(2,1,2);
+ for ii=1:sv
+   for k=1:m
+     plot(t,imag(z(:,k,ii)),'lineStyle',myline(ii),'Color',mycol(k))
+     hold on
+   end
+ end
+ grid on
+ xlabel('t')
+ ylabel('imaginary part of z(t)');
+  title('imaginary part of the solution for different v');
+  legend(cellstr(num2str(v0')))
+  
+%plot the real and imaginary parts 
+figure(2)
+clf;
+hold all
+
+  for ii=1:sv
+    for k=1:m
+      
+      plot(real(z(:,k,ii)),imag(z(:,k,ii)));
+   end
+  end
+  axis equal 
+  grid on
+  xlabel('real part of z(t)');
+  ylabel('imag part of z(t)');
+  title('the phase plane for different v');
+  legend(cellstr(num2str(v0')))
