@@ -1,0 +1,52 @@
+clear
+load("phaseplaneresult.mat")
+%plot the real and imaginary parts with time separately
+mycol = ['b' 'g' 'r']; 
+myline = ['-' '--' '-.' ':' '-'];
+figure(1)
+clf;
+hold all
+ 
+subplot(2,1,1);
+ for ii = 1:sv
+   for k = 1:m   
+     plot(t,real(z(:,k,ii)),'lineStyle',myline(ii),'Color',mycol(k),'linewidth',1)
+     hold on
+   end 
+ end
+ grid on
+ xlabel('$t$','Interpreter','latex');
+ ylabel('real part of $ z(t)$','Interpreter','latex');
+ legend(cellstr(num2str(v0')))
+ set(gca,"FontSize",18)
+ 
+subplot(2,1,2);
+ for ii = 1:sv
+   for k = 1:m
+     plot(t,imag(z(:,k,ii)),'lineStyle',myline(ii),'Color',mycol(k),'linewidth',1)
+     hold on
+   end
+ end
+ grid on
+ xlabel('$t$','Interpreter','latex')
+ ylabel('imaginary part of $z(t)$','Interpreter','latex');
+  legend(cellstr(num2str(v0')))
+   set(gca,"FontSize",18)
+  
+%plot the real and imaginary parts 
+figure(2)
+clf;
+hold all
+
+  for ii=1:sv
+    for k=1:m
+      
+      plot(real(z(:,k,ii)),imag(z(:,k,ii)),'linewidth',1);
+   end
+  end
+  axis equal 
+  grid on
+  xlabel('real part of $z(t)$','Interpreter','latex');
+  ylabel('imaginary part of $z(t)$','Interpreter','latex');
+  legend(cellstr(num2str(v0')))
+   set(gca,"FontSize",18)
