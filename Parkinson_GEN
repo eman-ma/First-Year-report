@@ -1,0 +1,121 @@
+% Code by AI WANG
+clear; close all; clc
+
+% general Data
+
+event=xlsread('freezing_events');
+dt =0.01;  % time stepping 0.01s, 100Hz
+
+ii = 9;                    % which event (1-25)
+a1 = event(ii,1);          % number of subject
+a2 = event(ii,2);          % number of set 
+a3= event(ii,4);           % begeinning of the time interval
+a4 = event(ii,6);          % ending of the time interval
+check_area = a3:a4;        % time interval
+a = sprintf('../Gdata/Pt %d/FD%d_%d.txt',a1,a1,a2);
+A=load(a);                 %load data
+nametitle1 = sprintf('ST %d_%d',a1,a2);
+nametitle2 = sprintf('ST %d_%d %d-%d',a1,a2,a3,a4);
+lfoot = abs(A(:,4))';                       % left foot force
+
+force = lfoot-mean(lfoot);
+force = force./max(force);   % scale force into (0,1)
+
+
+amplcut = 0.1;           % notated as p in paper
+degreecut = 5;           % notated as q in paper
+%% fft
+N = length(lfoot);
+f = (0:N-1)/N;
+fs = 1/dt;                      %sampling frequency
+freq = f*fs;                    % creates the x-axis of freqs in Hz
+Y = fft(lfoot,N);                % FFt is a fast fourier transform
+PSD = Y.*conj(Y)/N;             % power spectrum density (how much power is in each freq)
+[M,I1] = max(PSD(2:end));
+L = 2:floor(N/2);               % only plot the first half of freqs
+psd = PSD(L)/max(PSD(L));
+
+%% delay embedding
+delay = round(length(A)/4/I1);
+dim = 3;  
+H = cell2mat(arrayfun(@(s,e)lfoot(s:end+e),1+delay*(0:dim-1),delay*(-(dim-1):0),...
+        'uniformoutput',false)');   % Hankel matrix
+npt = size(H,2);
+H = H-mean(H,2);                    %remove mean
+[U1,S1,V1] = svd(H,'econ');
+H = V1';
+% normalization
+H = V1'*sqrt(size(V1,1));
+maxH1 = max(abs(H),[],2);
+H = H./maxH1;
+% FNN (false nearest neighbours)
+x = lfoot;
+x = x(1000:1500);
+FNN = fnn_deneme(x,delay,9,30,2);  
+% local maximun
+datal = theta_thr(lfoot);
+%% hilbert embedding
+wholesize = 1:size(lfoot,2);
+[AMPL,THETA,HH] = analyticInfo(lfoot,wholesize);   
+ampl = AMPL(check_area);
+theta = THETA(check_area);
+% ampl: amplitude 
+% theta: phase is in 0,2pi interval
+% area we want to study after hilbert transform embedding
+
+
+%% distretization
+[dr,dtheta,data,data2,countingtable,DistanceD,DistanceA,originalbox] = boxmovingbySMatrix(ampl,theta,amplcut,degreecut);
+% [x,y] = pol2cart(theta,ampl);
+denominator = sum(countingtable,2);
+denominator(denominator==0)=1;
+transitionM = countingtable./denominator;
+labelforcheck = find(data(:,3)~=0);
+tM = transitionM(labelforcheck,labelforcheck);
+% for simulate random walk
+[r,Theta] = randomWalkbySMatrix(ampl,theta,amplcut,degreecut);
+
+%% 1： box seperation
+
+[FirstASL,AbsorbingSetLabel,AbsorbingSet,TransitionSet,TransitionSetLabel] = Transclosure(tM);
+
+FirstASL = labelforcheck(FirstASL);                         % in 360*360
+TransitionSetLabel = labelforcheck(TransitionSetLabel);   % in 360*360
+AbsorbingSetLabel = labelforcheck(AbsorbingSetLabel);     % in 360*360
+
+
+%% 2： time series seperation
+TSsepLabelT = ismember(originalbox,TransitionSetLabel);
+TSsepLabelA = ismember(originalbox,AbsorbingSetLabel);
+[reigvec2,eigval2,leigvec2] = eig(TransitionSet);
+eigval2 = diag(eigval2);
+%% 3 MET for each starting
+s = eye(size(TransitionSet));
+ID = eye(size(TransitionSet));
+metbyA = -s/(TransitionSet-ID);
+metfromS = sum(metbyA,2)*dt;
+metfromLambda = 1/(1-max(abs(eigval2)))*dt;
+metlowL = find(metfromS<metfromLambda);
+TSmetlowL = TransitionSetLabel(metlowL);
+[x,y] = pol2cart(deg2rad(data(TransitionSetLabel,1)),data(TransitionSetLabel,2));
+
+%
+escapeRate = 1./metfromS;
+escapeRate = escapeRate./(sum(escapeRate));
+[rmin,rminL] = min(metfromS);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
