@@ -1,0 +1,88 @@
+clear
+% define the function f(z)
+omega = 0;
+alpha = 0.1; % Set alpha = 0 for the deterministic case
+beta=-1;
+f = @(z,v) (-v+1i*omega)*z + 2*z*abs(z)^2 - (1+1i*beta)*z*abs(z)^4;
+% different values of v parameters
+%v0 = 0.1:0.4:1.0;
+v0=0.95;
+sv = length(v0);
+% the initial conditions
+%z0 = 0.5:1:2.5; 
+z0=2;
+if length(z0) > 3
+    z0 = z0(1:3); % Limiting to 3 initial conditions if more are provided
+end
+m = length(z0); % number of initial conditions
+z1 = 0; z2 = 1;
+% define the time t
+T = 100;
+N = 100000;
+dt = T/N;
+t = linspace(0,T,N);
+z = zeros(N,m,sv);
+
+%solve SDE using Euler-Maruyama method
+rng(0);
+for k = 1:m
+  for ii = 1:sv 
+    z(1,k,ii) = z0(k);
+    v00 = v0(ii); 
+    for i = 1:N-1
+       dW = sqrt(dt)*(randn + 1i*randn);
+       z(i+1,k,ii) = z(i,k,ii) + f(z(i,k,ii),v00)*dt + alpha*dW;
+    end
+  end
+end
+
+%plot the real and imaginary parts with time separately
+mycol = ['b' 'g' 'r']; 
+myline = ['-' '--' '-.' ':' '-'];
+figure(1)
+clf;
+hold all
+ 
+subplot(2,1,1);
+ for ii = 1:sv
+   for k = 1:m   
+     plot(t,real(z(:,k,ii)),'lineStyle',myline(ii),'Color',mycol(k))
+     hold on
+   end 
+ end
+ grid on
+ xlabel('$t$','Interpreter','latex');
+ ylabel('real part of $ z(t)$','Interpreter','latex');
+ legend(cellstr(num2str(v0')))
+ set(gca,"FontSize",18)
+ 
+subplot(2,1,2);
+ for ii = 1:sv
+   for k = 1:m
+     plot(t,imag(z(:,k,ii)),'lineStyle',myline(ii),'Color',mycol(k))
+     hold on
+   end
+ end
+ grid on
+xlabel('$t$','Interpreter','latex')
+ ylabel('imaginary part of $z(t)$','Interpreter','latex');
+  legend(cellstr(num2str(v0')))
+   set(gca,"FontSize",18)
+  
+%plot the real and imaginary parts 
+figure(2)
+clf;
+hold all
+
+  for ii = 1:sv
+    for k = 1:m
+      
+      plot(real(z(:,k,ii)),imag(z(:,k,ii)),'lineStyle',myline(ii),'Color',mycol(k));
+   end
+  end
+  axis equal 
+  grid on
+  xlabel('real part of $z(t)$','Interpreter','latex');
+  ylabel('imag part of $z(t)$','Interpreter','latex');
+  legend(cellstr(num2str(v0')))
+   set(gca,"FontSize",18)
