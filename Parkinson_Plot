@@ -1,0 +1,161 @@
+% Code by AI WANG
+clear; close all; clc
+
+Parkinson_GEN
+
+%%  Part 1:
+figure;clf; 
+set(gcf,'position',[500 500 1500 500])
+subplot(1,3,[1,2]);    ax1=gca;
+subplot(1,3,3);        ax2=gca;
+
+plot(ax1,abs(A(:,4))','.-');
+set(ax1,'fontsize',20);hold(ax1,'on');
+xlim(ax1,[0,9000])
+xlabel(ax1,'time (sampling step, 0.01s)')
+ylim(ax1,[0,200])
+ylabel(ax1,'Force')
+psd = PSD(L)/max(PSD(L));
+plot(ax2,freq(L),PSD(L)/max(PSD(L)),'linewidth',2);grid on;
+set(ax2,'fontsize',20);hold(ax2,'on');
+text(ax2,freq(I1+1),PSD(I1+1)/max(PSD(L)),['(',num2str(freq(I1+1)),',',num2str(PSD(I1+1)/max(PSD(L))),')'],'color','r','fontsize',30);
+ylabel('Power Specturm')
+xlabel('Frequency (Hz)')
+title(ax1,nametitle1)
+set(ax2,'Ylim',[0 1],'Xlim',[0,3])
+
+%% Part 2:
+figure
+set(gcf,'position',[500 500 800 800]);
+plot(HH,'b.','markersize',8)
+ylim([-1,1])
+axis equal
+title(nametitle2);
+set(gca,'fontsize',20)
+
+%% Part 3:
+figure;clf; f5=gcf;
+set(gcf,'position',[500 500 1500 500])
+
+subplot(1,3,1);ax11=gca;
+plot3(ax11,H(1,:),H(2,:),H(3,:),'.-'); grid(ax11,'on');
+view(ax11,[28.8130432894317 1.74664557653866]);
+set(ax11,'fontsize',40);hold(ax11,'on');
+    
+subplot(1,3,2);ax33=gca;
+plot3(ax33,H(1,:),H(2,:),H(3,:),'.-'); grid(ax33,'on');
+view(ax33,[22.8798787806738 70.2399581334974]);
+set(ax33,'fontsize',30);hold(ax33,'on');
+
+subplot(1,3,3);ax44=gca;
+plot(ax44,1:length(FNN),FNN,'-o','linewidth',2)
+grid (ax44,'on');
+xlabel(ax44,'Embedding dimension')
+ylabel(ax44,'The percentage of FNN')
+set(ax44,'fontsize',40,'XTick',[1 2 3 4 9],'YTick',[0 10 20 30 100]);
+
+%% Part 3: (try many times)
+figure;clf;
+set(gcf,'position',[500 500 1500 500]);
+
+subplot(1,3,1)
+polarplot(theta,ampl,'b.','markersize',8)
+title(nametitle2)
+set(gca,'fontsize',30)
+
+subplot(1,3,2)
+polarplot(Theta,r,'b-o','linewidth',1)
+set(gca,'fontsize',30)
+title('Simulation')
+
+subplot(1,3,3)
+plot(r.*cos(Theta),'linewidth',1)
+xlim([0,6000])
+hold on
+plot(force(check_area))
+legend('simulated time series','real time series')
+set(gca,'fontsize',30);
+xlabel('time step')
+ylabel('Force')
+
+%%
+figure;clf; f1=gcf;
+set(gcf,'position',[500 500 1000 1000])
+subplot(3,1,1); ax1=gca;
+subplot(3,1,2); ax2=gca;
+subplot(3,1,3); ax3=gca;
+    
+    
+plot(ax1,1:length(AMPL),AMPL,'.','linewidth',2); hold(ax1,'on');
+plot(ax1,datal,AMPL(datal),'*','color','R');hold(ax1,'on');
+ylabel(ax1,'HT(amplitude)');
+set(ax1,'fontsize',20);hold(ax1,'on')
+plot(ax2,1:length(AMPL),THETA,'.','linewidth',2); hold(ax2,'on'); ylim(ax2,[0,6.5])
+plot(ax2,datal,THETA(datal),'*','color','R');
+ylabel(ax2,'HT(\psi)'); 
+set(ax2,'FontSize',20,'YTick',...
+[0 1.5707963267949 3.14159265358979 4.71238898038469 6.28318530717959],...
+'YTickLabel',{'0','90','180','270','360'});
+set(ax2,'fontsize',20);hold(ax2,'on')
+    
+plot(ax3,1:length(AMPL),lfoot,'.','linewidth',2); hold(ax3,'on');
+plot(ax3,datal,lfoot(datal),'*','color','R');
+xlabel(ax3,'time'); ylabel(ax3,'Force');
+set(ax3,'fontsize',20);hold(ax3,'on')
+title(ax1,nametitle1);
+%% part 4
+figure;clf
+subplot(1,3,1)
+set(gcf,'position',[500 500 1500 500]);
+polarplot(deg2rad(data(TransitionSetLabel,1)),data(TransitionSetLabel,2),'bo','linewidth',1)
+hold on
+polarplot(deg2rad(data(AbsorbingSetLabel,1)),data(AbsorbingSetLabel,2),'ro','linewidth',1)
+polarplot(deg2rad(data(FirstASL,1)),data(FirstASL,2),'x','Linewidth',15,'Color','[0.10,0.98,0.00]')
+set(gca,'fontsize',30);
+subplot(1,3,2)
+t = linspace(1,length(ampl),length(ampl));
+force2 = force(check_area);
+plot(t(TSsepLabelT),force2(TSsepLabelT),'b.','markersize',8)
+title(nametitle2)
+hold on
+plot(t(TSsepLabelA),force2(TSsepLabelA),'r.','markersize',8)
+%     plot(ax2,t(TSmetlowL),lfoot(TSmetlowL),'m.','Linewidth',2)
+set(gca,'fontsize',30);
+subplot(1,3,3)
+polarplot(theta(TSsepLabelT),ampl(TSsepLabelT),'b.','markersize',8)
+hold on
+polarplot(theta(TSsepLabelA),ampl(TSsepLabelA),'r.','markersize',8)
+set(gca,'fontsize',30);
+
+%% mean escape time
+figure
+set(gcf,'position',[500 500 1000 600]);
+subplot(1,2,1); ax6=gca;
+subplot(1,2,2); ax7=gca;
+plot3(ax6,x,y,metfromS,'bo','Linewidth',2)
+grid(ax6,'on')
+zlabel(ax6,'MET')
+hold(ax6,'on')
+plot3(ax6,x(metlowL),y(metlowL),metfromS(metlowL),'mx','Linewidth',2)
+set(ax6,'fontsize',30);
+plot3(ax7,x,y,escapeRate,'bo','Linewidth',2)
+hold(ax7,'on')
+grid(ax7,'on')
+title(ax7,nametitle2)
+plot3(ax7,x(rminL),y(rminL),escapeRate(rminL),'x','Linewidth',14,'Color','[0.10,0.98,0.00]')
+view(ax7,[-0.931481695462208 90]);
+axis equal
+set(ax7,'fontsize',30);
+
+
+
+
+
+
+
+
+
+
+
+
+
