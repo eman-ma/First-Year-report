@@ -1,9 +1,10 @@
 clear
 % define the function f(z)
-omega = 0;
+omega = 1;
 alpha = 0.1; % Set alpha = 0 for the deterministic case
-beta=-1;
-f = @(z,v) (-v+1i*omega)*z + 2*z*abs(z)^2 - (1+1i*beta)*z*abs(z)^4;
+gamma_1 =1;
+gamma_0 = -1;
+f = @(z,v) (-v+1i*omega)*z + 2*(1+1i*gamma_0)*z*abs(z)^2 - (1+1i*gamma_1)*z*abs(z)^4;
 % different values of v parameters
 %v0 = 0.1:0.4:1.0;
 v0=0.95;
