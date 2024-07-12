@@ -1,0 +1,57 @@
+clear; close all; clc
+load('phasefor3cutoffs.mat','phase')
+
+Parkinson_GEN
+%% Part 1:
+figure
+plot(HH,'b.','markersize',8)
+ylim([-1,1])
+axis equal
+title(nametitle1);
+set(gca,'fontsize',20)
+ grid on
+  xlabel('$R(X)$','Interpreter','latex');
+ ylabel(' $Z(X)$','Interpreter','latex');
+ %%
+figure(2),clf;
+plot(theta/(2*pi),ampl,".");
+ylim([0,1])
+xlabel('$\psi$','Interpreter','latex'); 
+title(nametitle1);
+ylabel('Amplitude','Interpreter','latex');
+set(gca,'fontsize',18)
+%%
+figure(3),
+plot(real(HH(check_area)),imag(HH(check_area)))
+xlim([-1,1])
+ylim([-1,1])
+grid on
+xlabel('$R(X)$','Interpreter','latex');
+ylabel('$Z(X)$','Interpreter','latex');
+title(nametitle1);
+set(gca,'fontsize',20)
+%%
+figure(4);clf; f1=gcf;
+set(gcf,'position',[500 500 1000 1000])
+subplot(3,1,1); ax1=gca;
+subplot(3,1,2); ax2=gca;
+subplot(3,1,3); ax3=gca;
+    
+    
+plot(ax1,1:length(AMPL),AMPL,'.','linewidth',2); hold(ax1,'on');
+plot(ax1,datal,AMPL(datal),'*','color','R');hold(ax1,'on');
+ylabel(ax1,'HT(amplitude)');
+set(ax1,'fontsize',20);hold(ax1,'on')
+plot(ax2,1:length(AMPL),THETA,'.','linewidth',2); hold(ax2,'on'); ylim(ax2,[0,6.5])
+plot(ax2,datal,THETA(datal),'*','color','R');
+ylabel(ax2,'HT(\psi)'); 
+set(ax2,'FontSize',20,'YTick',...
+[0 1.5707963267949 3.14159265358979 4.71238898038469 6.28318530717959],...
+'YTickLabel',{'0','90','180','270','360'});
+set(ax2,'fontsize',20);hold(ax2,'on')
+    
+plot(ax3,1:length(AMPL),lfoot,'.','linewidth',2); hold(ax3,'on');
+plot(ax3,datal,lfoot(datal),'*','color','R');
+xlabel(ax3,'time'); ylabel(ax3,'Force');
+set(ax3,'fontsize',20);hold(ax3,'on')
+title(ax1,nametitle1);
