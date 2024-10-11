@@ -1,0 +1,61 @@
+% Define range of nu values
+nu_values = linspace(-0.5, 1.5, 1000); % Range for bifurcation parameter nu
+r_limit = 2; % Limit for r (y-axis) in plot
+
+stable = NaN(size(nu_values)); 
+unstable = NaN(size(nu_values)); 
+
+% Compute the peroidic orbit solutions for each nu
+for i = 1:length(nu_values)
+    nu = nu_values(i);
+    
+    % For nu < 0: Unstable equilibrium at the origin, stable periodic orbit
+    if nu < 0
+        stable(i) = sqrt(1 + sqrt(1 - nu)); % No stable fixed point at origin
+       % unstable(i) = 0; % Unstable origin (dashed line at origin)
+         
+    % For 0 <= nu < 1: Bistability between stable and unstable limit cycles
+    elseif nu >= 0 && nu < 1
+        stable(i) = sqrt(1 + sqrt(1 - nu)); 
+        unstable(i) = sqrt(1 - sqrt(1 - nu));
+    
+    % For nu >= 1: Saddle-node bifurcation, only stable fixed point remains
+    else
+        stable(i) = NaN; % No stable limit cycle
+        unstable(i) = NaN; % No unstable limit cycle
+    end
+end
+
+% Plotting the bifurcation diagram
+figure;
+hold on;
+
+% Plot stable (solid line)
+SPO=plot(nu_values, stable, 'b-', 'LineWidth', 2,'DisplayName','stable perodic orbit'); 
+plot(nu_values, -stable, 'b-', 'LineWidth', 2);
+
+% Plot unstable (dashed line)
+UPO=plot(nu_values, unstable, 'b--', 'LineWidth', 2,'DisplayName','unstable perodic orbit'); 
+plot(nu_values, -unstable, 'b--', 'LineWidth', 2); 
+
+% Plot unstable equilibrium (dashed line at origin for nu < 0)
+UE=plot(nu_values(nu_values<0), zeros(size(nu_values(nu_values<0))), 'k--', 'LineWidth', 2,'DisplayName','unstable equilibrium'); % Unstable origin for nu < 0
+% Plot stable equilibrium (solid line at origin for nu > 0)
+SE=plot(nu_values(nu_values>0), zeros(size(nu_values(nu_values>0))), 'k-', 'LineWidth', 2,'DisplayName','stable equilibrium'); % stable origin for nu > 0
+HB=plot(0,0,'rs','DisplayName','hopfbifurcation');
+% Highlight the bifurcation points
+%plot(0, 0, 'ko', 'MarkerSize', 8, 'MarkerFaceColor', 'k'); % Hopf bifurcation (HB at zero)
+SN=plot(1, 1, 'ko', 'DisplayName','saddle-node','MarkerSize', 8, 'MarkerFaceColor', 'k'); % Saddle-node bifurcation (SN at nu = 1)
+plot(1, -1, 'ko', 'MarkerSize', 8, 'MarkerFaceColor', 'k'); % Saddle-node bifurcation (negative branch)
+% Annotate the diagram
+text(-0.1, 0.2, 'HB', 'FontSize', 12); % Label Hopf bifurcation
+text(1.05, 0.8, 'SN', 'FontSize', 12); % Label saddle-node bifurcation (positive)
+text(1.05, -0.8, 'SN', 'FontSize', 12); % Label saddle-node bifurcation (negative)
+xlabel('\nu', 'FontSize', 12); % Bifurcation parameter label
+ylabel('r', 'FontSize', 12); 
+title('Bifurcation Diagram', 'FontSize', 14);
+ylim([-r_limit, r_limit]); % Limit for y-axis (r values)
+xlim([-0.5, 1.5]); % Limit for x-axis (nu values)
+legend([SPO,UPO,UE,SE,HB,SN],'Location', 'best');
+grid on;
+hold off;
